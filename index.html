@@ -2,56 +2,220 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <title>英语自然语音转换器</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>高质量英文语音合成 (TTS)</title>
     <style>
-        body { font-family: sans-serif; max-width: 600px; margin: 50px auto; padding: 20px; line-height: 1.6; }
-        textarea { width: 100%; height: 150px; padding: 10px; margin-bottom: 10px; border: 1px solid #ccc; border-radius: 5px; }
-        button { background: #007bff; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; }
-        button:disabled { background: #ccc; }
-        .controls { display: flex; gap: 10px; align-items: center; margin-top: 10px; }
+        :root {
+            --primary-color: #0078D4; /* 微软蓝 */
+            --hover-color: #005A9E;
+            --bg-color: #f3f2f1;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 600px;
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-top: 0;
+            font-size: 24px;
+        }
+        textarea {
+            width: 100%;
+            height: 150px;
+            padding: 12px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            resize: vertical;
+            font-size: 16px;
+            box-sizing: border-box;
+            margin-bottom: 15px;
+            font-family: inherit;
+        }
+        .controls {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        select {
+            flex: 1;
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            outline: none;
+        }
+        button {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            font-size: 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            font-weight: 600;
+        }
+        button:hover {
+            background-color: var(--hover-color);
+        }
+        button:disabled {
+            background-color: #a0cdef;
+            cursor: not-allowed;
+        }
+        .result-area {
+            display: none; /* 默认隐藏，生成后显示 */
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+            text-align: center;
+        }
+        audio {
+            width: 100%;
+            margin-bottom: 15px;
+            outline: none;
+        }
+        .download-btn {
+            display: inline-block;
+            background-color: #107c10; /* 绿色下载按钮 */
+            color: white;
+            text-decoration: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            font-weight: bold;
+            transition: background 0.2s;
+        }
+        .download-btn:hover {
+            background-color: #0b5a0b;
+        }
     </style>
 </head>
 <body>
-    <h2>简易英语朗读器V2</h2>
-    <textarea id="textInput" placeholder="在此粘贴英文段落..."></textarea>
+
+<div class="container">
+    <h1>文本转语音 (高质量发音)</h1>
+    
+    <textarea id="textInput" placeholder="Please paste your English text here... (请在此粘贴英文文本)"></textarea>
     
     <div class="controls">
-        <button id="playBtn">生成并试听</button>
-        <audio id="audioPlayer" controls style="display:none;"></audio>
-        <a id="downloadBtn" style="display:none; text-decoration: none; color: #28a745; font-weight: bold;">点击下载 MP3</a>
+        <select id="voiceSelect">
+            <optgroup label="美国英语 (US English)">
+                <option value="en-US-AriaNeural" selected>Aria (女声，自然流畅)</option>
+                <option value="en-US-GuyNeural">Guy (男声，沉稳专业)</option>
+                <option value="en-US-JennyNeural">Jenny (女声，清晰友好)</option>
+                <option value="en-US-ChristopherNeural">Christopher (男声，可靠浑厚)</option>
+            </optgroup>
+            <optgroup label="英国英语 (UK English)">
+                <option value="en-GB-SoniaNeural">Sonia (英音女声)</option>
+                <option value="en-GB-RyanNeural">Ryan (英音男声)</option>
+            </optgroup>
+        </select>
+        
+        <button id="generateBtn">合成语音</button>
     </div>
 
-    <script>
-        const playBtn = document.getElementById('playBtn');
-        const audioPlayer = document.getElementById('audioPlayer');
-        const downloadBtn = document.getElementById('downloadBtn');
-        const textInput = document.getElementById('textInput');
+    <div class="result-area" id="resultArea">
+        <audio id="audioPlayer" controls></audio>
+        <br>
+        <a id="downloadLink" class="download-btn" href="#" download="speech.mp3">⬇ 下载 MP3</a>
+    </div>
+</div>
 
-        // 【关键！】这里换成你刚才在 Cloudflare 生成的 Worker 地址
-        const WORKER_URL = 'https://mytts.frankyinshen.workers.dev/';
+<script>
+    // ==========================================
+    // ⚠️ 必填：替换为你自己的 Cloudflare Worker 网址
+    // 例如："https://my-tts-worker.yourname.workers.dev"
+    // ==========================================
+    const WORKER_URL = "https://ttshelp.evanyin.dpdns.org/"; 
 
-        playBtn.onclick = async () => {
-            const text = textInput.value.trim();
-            if (!text) return alert("请输入文字");
+    const generateBtn = document.getElementById('generateBtn');
+    const textInput = document.getElementById('textInput');
+    const voiceSelect = document.getElementById('voiceSelect');
+    const resultArea = document.getElementById('resultArea');
+    const audioPlayer = document.getElementById('audioPlayer');
+    const downloadLink = document.getElementById('downloadLink');
 
-            playBtn.disabled = true;
-            playBtn.innerText = "生成中...";
+    generateBtn.addEventListener('click', async () => {
+        const text = textInput.value.trim();
+        const voice = voiceSelect.value;
 
-            // 拼接请求地址
-            const finalUrl = `${WORKER_URL}/?text=${encodeURIComponent(text)}`;
+        if (!text) {
+            alert("请先输入或粘贴需要转换的文本！");
+            return;
+        }
 
-            // 更新音频播放器和下载链接
-            audioPlayer.src = finalUrl;
-            audioPlayer.style.display = "block";
+        if (WORKER_URL.includes("替换为你的Worker域名")) {
+            alert("请先在 HTML 源码中修改 WORKER_URL 变量！");
+            return;
+        }
+
+        // 按钮进入加载状态
+        generateBtn.disabled = true;
+        generateBtn.innerText = "⏳ 正在合成中...";
+        resultArea.style.display = "none";
+
+        try {
+            // 拼接请求 URL
+            const url = new URL(WORKER_URL);
+            url.searchParams.append("text", text);
+            url.searchParams.append("voice", voice);
+
+            // 发起请求给 Worker
+            const response = await fetch(url.toString(), {
+                method: 'GET'
+            });
+
+            if (!response.ok) {
+                throw new Error(`Worker 返回错误状态码: ${response.status}`);
+            }
+
+            // 将返回的 MP3 数据转为 Blob
+            const blob = await response.blob();
+            
+            // 释放上一次生成的 URL（防止内存泄漏）
+            if (audioPlayer.src) {
+                URL.revokeObjectURL(audioPlayer.src);
+            }
+
+            // 生成本地可播放和下载的 URL
+            const audioUrl = URL.createObjectURL(blob);
+
+            // 赋值给播放器和下载按钮
+            audioPlayer.src = audioUrl;
+            downloadLink.href = audioUrl;
+            
+            // 生成文件名（取前10个字符做名字）
+            const safeFileName = text.substring(0, 10).replace(/[^a-zA-Z0-9]/g, "_") || "audio";
+            downloadLink.download = `${safeFileName}_speech.mp3`;
+
+            // 显示结果区域并自动播放
+            resultArea.style.display = "block";
             audioPlayer.play();
 
-            downloadBtn.href = finalUrl;
-            downloadBtn.download = "speech.mp3";
-            downloadBtn.style.display = "inline";
+        } catch (error) {
+            console.error(error);
+            alert("合成失败，请检查网络或 Worker 配置。\n错误信息: " + error.message);
+        } finally {
+            // 恢复按钮状态
+            generateBtn.disabled = false;
+            generateBtn.innerText = "合成语音";
+        }
+    });
+</script>
 
-            playBtn.disabled = false;
-            playBtn.innerText = "生成并试听";
-        };
-    </script>
 </body>
 </html>
