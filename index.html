@@ -4,191 +4,177 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>TTS Studio v5</title>
+    <script src="https://js.puter.com/v2/"></script>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-            background: #0c0c11; color: #ddddf0;
-            min-height: 100vh; padding: 22px 14px 60px;
-            display: flex; justify-content: center;
-        }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #0c0c11; color: #ddddf0; min-height: 100vh; padding: 20px 14px 60px; display: flex; justify-content: center; }
         .wrap { width: 100%; max-width: 640px; }
-
-        .header { text-align: center; margin-bottom: 18px; }
-        .header h1 { font-size: 23px; font-weight: 800; color: #fff; }
+        .header { text-align: center; margin-bottom: 16px; }
+        .header h1 { font-size: 22px; font-weight: 800; color: #fff; }
         .header h1 em { color: #7c6fff; font-style: normal; }
         .header p { margin-top: 4px; font-size: 12px; color: #404058; }
-
+        #localWarn { display: none; background: #1a1208; border: 1px solid #3a2808; border-radius: 12px; padding: 12px 15px; margin-bottom: 10px; font-size: 12px; color: #c08030; line-height: 1.8; }
+        #localWarn b { color: #e09040; }
+        #localWarn code { background: #2a1808; padding: 1px 5px; border-radius: 4px; }
         .card { background: #15151e; border: 1px solid #242432; border-radius: 18px; padding: 18px; margin-bottom: 10px; }
-
         .lbl { font-size: 11px; font-weight: 700; color: #42425a; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
         .char-c { font-size: 12px; color: #333348; font-weight: 400; text-transform: none; letter-spacing: 0; }
-
-        /* 使用说明横幅 */
-        .how-banner {
-            background: #0e0e1a; border: 1px solid #252540; border-radius: 12px;
-            padding: 12px 15px; margin-bottom: 10px; font-size: 12px; color: #50508a; line-height: 1.8;
-        }
-        .how-banner b { color: #7070b0; }
-        .how-banner .step { display: flex; align-items: flex-start; gap: 8px; margin-bottom: 4px; }
-        .how-banner .step:last-child { margin-bottom: 0; }
-        .how-banner .num { background: #1e1e38; color: #8080c0; border-radius: 50%; width: 18px; height: 18px; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 700; flex-shrink: 0; margin-top: 1px; }
-
-        textarea {
-            width: 100%; height: 120px; background: #0f0f18; border: 1px solid #242432;
-            border-radius: 11px; color: #d0d0ee; font-size: 15px; line-height: 1.6;
-            padding: 11px 13px; resize: vertical; outline: none; font-family: inherit; transition: border-color .2s;
-        }
+        textarea { width: 100%; height: 120px; background: #0f0f18; border: 1px solid #242432; border-radius: 11px; color: #d0d0ee; font-size: 15px; line-height: 1.6; padding: 11px 13px; resize: vertical; outline: none; font-family: inherit; transition: border-color .2s; }
         textarea:focus { border-color: #7c6fff; }
         textarea::placeholder { color: #28283a; }
-
-        /* 音源分组 */
-        .src-group { margin-bottom: 14px; }
-        .src-group:last-child { margin-bottom: 0; }
-        .src-group-title {
-            font-size: 11px; font-weight: 700; color: #3a3a60; text-transform: uppercase;
-            letter-spacing: .8px; margin-bottom: 8px; display: flex; align-items: center; gap: 6px;
-        }
-        .src-group-title::after { content: ''; flex: 1; height: 1px; background: #1e1e2e; }
-
-        .vgrid { display: grid; grid-template-columns: 1fr 1fr; gap: 7px; }
-        .vc {
-            background: #0f0f18; border: 2px solid #242432; border-radius: 11px;
-            padding: 9px 11px; cursor: pointer; transition: all .17s; user-select: none; position: relative;
-        }
+        .group-title { font-size: 11px; font-weight: 700; color: #42425a; text-transform: uppercase; letter-spacing: .8px; margin: 0 0 8px; display: flex; align-items: center; gap: 6px; }
+        .gdot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; flex-shrink: 0; }
+        .gdot-cn  { background: #34d399; }
+        .gdot-int { background: #7c6fff; }
+        .sub-title { font-size: 11px; color: #363660; margin-bottom: 6px; margin-top: 2px; }
+        hr.sep { border: none; border-top: 1px solid #1e1e2c; margin: 14px 0 12px; }
+        .vgrid { display: grid; grid-template-columns: 1fr 1fr; gap: 7px; margin-bottom: 0; }
+        .vc { background: #0f0f18; border: 2px solid #242432; border-radius: 11px; padding: 9px 11px; cursor: pointer; transition: all .17s; user-select: none; position: relative; }
         .vc:hover { border-color: #363654; }
-        .vc.sel { border-color: #7c6fff; background: #191730; }
+        .vc.sel     { border-color: #7c6fff !important; background: #191730 !important; }
+        .vc.sel-cn  { border-color: #34d399 !important; background: #0d1e18 !important; }
         .vc .vn { font-size: 13px; font-weight: 700; color: #aaa; }
-        .vc.sel .vn { color: #a09aff; }
+        .vc.sel .vn, .vc.sel-cn .vn { color: #e0e0ff; }
         .vc .vd { font-size: 11px; color: #333348; margin-top: 2px; }
         .vc .vt { display: inline-block; margin-top: 4px; font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 20px; background: #1c1c28; color: #484860; }
-        .vc.sel .vt { background: #211e3e; color: #7a76d0; }
-        .vc .badge { position: absolute; top: 6px; right: 7px; font-size: 9px; background: #1c1a38; color: #7c76d8; padding: 2px 6px; border-radius: 5px; font-weight: 700; }
-        .vc .tag-wall { position: absolute; top: 6px; right: 7px; font-size: 9px; background: #2a1818; color: #a05050; padding: 2px 6px; border-radius: 5px; font-weight: 700; }
-
+        .vc.sel .vt    { background: #211e3e; color: #7a76d0; }
+        .vc.sel-cn .vt { background: #0d2820; color: #40a070; }
+        .badge     { position: absolute; top: 6px; right: 7px; font-size: 9px; background: #1c1a38; color: #7c76d8; padding: 2px 6px; border-radius: 5px; font-weight: 700; }
+        .badge-cn  { position: absolute; top: 6px; right: 7px; font-size: 9px; background: #0d2010; color: #34d399; padding: 2px 6px; border-radius: 5px; font-weight: 700; }
+        .vgrid-gap { margin-top: 10px; }
         .sp-row { display: flex; align-items: center; gap: 10px; }
         .sp-lbl { font-size: 11px; color: #363650; }
         input[type=range] { flex: 1; -webkit-appearance: none; height: 3px; background: #242432; border-radius: 3px; outline: none; }
         input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 16px; height: 16px; background: #7c6fff; border-radius: 50%; cursor: pointer; box-shadow: 0 0 7px #7c6fff66; }
         .sp-val { font-size: 13px; font-weight: 700; color: #8a85e0; width: 34px; text-align: right; }
-
         .btn-row { display: flex; gap: 8px; }
         .btn { flex: 1; border: none; border-radius: 10px; font-size: 14px; font-weight: 700; padding: 13px 8px; cursor: pointer; transition: all .17s; display: flex; align-items: center; justify-content: center; gap: 6px; }
         .btn-play { background: #7c6fff; color: white; box-shadow: 0 4px 16px #7c6fff44; }
-        .btn-play:hover:not(:disabled) { background: #9188ff; transform: translateY(-1px); }
-        .btn-play.going { background: #ff4d6d; box-shadow: 0 4px 16px #ff4d6d55; }
-        .btn-play:disabled { opacity: .35; cursor: not-allowed; transform: none; }
+        .btn-play:hover { background: #9188ff; transform: translateY(-1px); }
+        .btn-play.going { background: #ff4d6d; box-shadow: 0 4px 16px #ff4d6d55; transform: none; }
         .btn-dl { background: #101820; color: #34d399; border: 1px solid #1a3228; min-width: 88px; flex: 0 0 auto; font-size: 13px; }
         .btn-dl:hover:not(:disabled) { background: #151e28; border-color: #34d399; }
         .btn-dl:disabled { opacity: .25; cursor: not-allowed; }
-
         .stat { background: #0f0f18; border: 1px solid #242432; border-radius: 11px; padding: 10px 14px; display: flex; align-items: center; gap: 9px; font-size: 13px; color: #40405a; min-height: 42px; }
         .dot { width: 7px; height: 7px; border-radius: 50%; background: #242432; flex-shrink: 0; transition: all .3s; }
         .dot.load { background: #7c6fff; box-shadow: 0 0 7px #7c6fff; animation: bk 1.1s infinite; }
         .dot.done { background: #34d399; box-shadow: 0 0 7px #34d39966; }
         .dot.err  { background: #ff4d6d; }
         @keyframes bk { 0%,100%{opacity:1} 50%{opacity:.2} }
-
         .prog-w { height: 3px; background: #242432; border-radius: 3px; margin-top: 8px; display: none; overflow: hidden; }
         .prog-b { height: 100%; background: linear-gradient(90deg,#7c6fff,#b4a4ff); border-radius: 3px; width: 0%; transition: width .3s; }
-
         .wave { display: none; align-items: center; gap: 3px; height: 16px; }
         .wave.on { display: flex; }
         .wave span { display: block; width: 3px; background: #fff; border-radius: 3px; animation: wv 1s infinite ease-in-out; }
-        .wave span:nth-child(2){animation-delay:.1s}.wave span:nth-child(3){animation-delay:.2s}
-        .wave span:nth-child(4){animation-delay:.3s}.wave span:nth-child(5){animation-delay:.4s}
+        .wave span:nth-child(2){animation-delay:.1s}.wave span:nth-child(3){animation-delay:.2s}.wave span:nth-child(4){animation-delay:.3s}.wave span:nth-child(5){animation-delay:.4s}
         @keyframes wv { 0%,100%{height:3px} 50%{height:14px} }
-
         .footer { font-size: 11px; color: #28283a; text-align: center; margin-top: 14px; line-height: 1.9; }
-
-        /* 本地服务器启动说明 */
-        .server-tip {
-            background: #0a100a; border: 1px solid #1a2a1a; border-radius: 12px;
-            padding: 12px 15px; margin-bottom: 10px; font-size: 12px; color: #406040; line-height: 1.8;
-        }
-        .server-tip b { color: #60a060; }
-        .server-tip code { background: #101a10; padding: 1px 6px; border-radius: 4px; font-size: 11px; color: #70c070; font-family: monospace; }
     </style>
 </head>
 <body>
 <div class="wrap">
 
     <div class="header">
-        <h1>TTS <em>Studio</em> <span style="font-size:12px;color:#303048;font-weight:400;">v5.0</span></h1>
-        <p>文字 → 真人语音 · 无需注册 · 国内可用</p>
+        <h1>TTS <em>Studio</em> <span style="font-size:11px;color:#2a2a42;font-weight:400;">v5.0</span></h1>
+        <p>文字 → 真人语音 → 下载 MP3 · 免费</p>
     </div>
 
-    <!-- 重要提示 -->
-    <div class="server-tip" id="serverTip">
-        ⚠️ <b>本地文件打开会导致音频加载失败（浏览器安全限制）</b><br>
-        请用以下任一方式运行此文件：<br>
-        <b>方法1 Python（推荐）：</b>在文件所在文件夹运行 <code>python -m http.server 8080</code>，然后访问 <code>http://localhost:8080</code><br>
-        <b>方法2：</b>上传到你自己的网站/服务器访问<br>
-        <b>方法3：</b>用 VS Code 的 Live Server 插件打开<br>
-        <span id="fileProtocolWarn" style="display:none;color:#c06060;font-weight:700;">⛔ 检测到正在用 file:// 本地打开，音频可能无法播放！</span>
+    <div id="localWarn">
+        ⚠️ <b>检测到本地文件打开（file://），国内音源可能被浏览器阻止。</b><br>
+        建议用 HTTP 服务器打开：VS Code 安装 <b>Live Server</b> 插件 → 右键 → Open with Live Server<br>
+        或终端运行 <code>python -m http.server 8080</code> 后访问 <code>localhost:8080</code><br>
+        🟢 <b>国际音源（Puter）不受此限制，直接可用。</b>
     </div>
 
-    <!-- 使用说明 -->
-    <div class="how-banner">
-        <div class="step"><div class="num">1</div><div>输入英文文字（单词、句子、段落均可）</div></div>
-        <div class="step"><div class="num">2</div><div>选择音源（<b>国内无梯子推荐有道</b>，有梯子推荐谷歌TTS）</div></div>
-        <div class="step"><div class="num">3</div><div>点播放，国际音源可在播放后下载 MP3</div></div>
-    </div>
-
-    <!-- 文字输入 -->
     <div class="card">
         <div class="lbl">输入文字 <span class="char-c" id="charCount">0 字</span></div>
-        <textarea id="textInput" placeholder="粘贴或输入英文…&#10;&#10;The quick brown fox jumps over the lazy dog."></textarea>
+        <textarea id="textInput" placeholder="粘贴或输入英文文字…&#10;&#10;例：The quick brown fox jumps over the lazy dog."></textarea>
     </div>
 
-    <!-- 音源选择 -->
     <div class="card">
         <div class="lbl" style="margin-bottom:14px;">选择音源</div>
 
-        <!-- 国内音源 -->
-        <div class="src-group">
-            <div class="src-group-title">🇨🇳 国内音源（无需梯子）</div>
-            <div class="vgrid">
-                <div class="vc sel" data-engine="cn" data-voice="youdao1" data-chunk="80">
-                    <span class="badge">推荐</span>
-                    <div class="vn">有道·美式</div><div class="vd">有道词典 en-US</div><span class="vt">女声·清晰</span>
-                </div>
-                <div class="vc" data-engine="cn" data-voice="youdao2" data-chunk="80">
-                    <div class="vn">有道·英式</div><div class="vd">有道词典 en-GB</div><span class="vt">男声·标准</span>
-                </div>
-                <div class="vc" data-engine="cn" data-voice="baidu" data-chunk="80">
-                    <div class="vn">百度翻译</div><div class="vd">百度 en-US</div><span class="vt">女声·自然</span>
-                </div>
-                <div class="vc" data-engine="cn" data-voice="sogou" data-chunk="60">
-                    <div class="vn">搜狗翻译</div><div class="vd">搜狗 en-US</div><span class="vt">女声·流畅</span>
-                </div>
+        <!-- 国内 -->
+        <div class="group-title"><span class="gdot gdot-cn"></span>国内音源（无需梯子 · 无需登录）</div>
+        <div class="vgrid">
+            <div class="vc sel-cn" data-engine="cn" data-voice="youdao1">
+                <span class="badge-cn">最稳</span>
+                <div class="vn">有道 · 美式</div><div class="vd">有道词典 en-US</div><span class="vt">女声·清晰</span>
+            </div>
+            <div class="vc" data-engine="cn" data-voice="youdao2">
+                <div class="vn">有道 · 英式</div><div class="vd">有道词典 en-GB</div><span class="vt">男声·标准</span>
+            </div>
+            <div class="vc" data-engine="cn" data-voice="baidu">
+                <div class="vn">百度翻译</div><div class="vd">百度 en-US</div><span class="vt">女声·自然</span>
+            </div>
+            <div class="vc" data-engine="cn" data-voice="sogou">
+                <div class="vn">搜狗翻译</div><div class="vd">搜狗 en-US</div><span class="vt">女声·流畅</span>
             </div>
         </div>
 
-        <!-- 国际音源 -->
-        <div class="src-group">
-            <div class="src-group-title">🌍 国际音源（需梯子 · 可下载MP3）</div>
-            <div class="vgrid">
-                <div class="vc" data-engine="google" data-voice="en-US" data-chunk="100">
-                    <span class="tag-wall">需梯子</span>
-                    <div class="vn">谷歌 TTS</div><div class="vd">Google en-US</div><span class="vt">女声·高质</span>
-                </div>
-                <div class="vc" data-engine="google" data-voice="en-GB" data-chunk="100">
-                    <span class="tag-wall">需梯子</span>
-                    <div class="vn">谷歌 TTS</div><div class="vd">Google en-GB</div><span class="vt">女声·英式</span>
-                </div>
-                <div class="vc" data-engine="google" data-voice="en-AU" data-chunk="100">
-                    <span class="tag-wall">需梯子</span>
-                    <div class="vn">谷歌 TTS</div><div class="vd">Google en-AU</div><span class="vt">女声·澳洲</span>
-                </div>
-                <div class="vc" data-engine="browser" data-voice="en-US" data-chunk="9999">
-                    <div class="vn">浏览器朗读</div><div class="vd">系统内置</div><span class="vt">无需联网</span>
-                </div>
+        <hr class="sep">
+
+        <!-- 国际 -->
+        <div class="group-title"><span class="gdot gdot-int"></span>国际音源（需梯子 · 可下载MP3 · 首次弹 Puter 免费登录）</div>
+
+        <div class="sub-title">🎙 AWS Polly Neural（Alexa 同款）</div>
+        <div class="vgrid">
+            <div class="vc" data-engine="aws-polly" data-voice="Joanna">
+                <span class="badge">推荐</span>
+                <div class="vn">Joanna</div><div class="vd">美式 en-US</div><span class="vt">女声</span>
+            </div>
+            <div class="vc" data-engine="aws-polly" data-voice="Matthew">
+                <div class="vn">Matthew</div><div class="vd">美式 en-US</div><span class="vt">男声</span>
+            </div>
+            <div class="vc" data-engine="aws-polly" data-voice="Amy">
+                <div class="vn">Amy</div><div class="vd">英式 en-GB</div><span class="vt">女声</span>
+            </div>
+            <div class="vc" data-engine="aws-polly" data-voice="Brian">
+                <div class="vn">Brian</div><div class="vd">英式 en-GB</div><span class="vt">男声</span>
+            </div>
+        </div>
+
+        <div class="sub-title vgrid-gap">✨ OpenAI TTS HD（ChatGPT 同款）</div>
+        <div class="vgrid">
+            <div class="vc" data-engine="openai" data-voice="nova">
+                <span class="badge">推荐</span>
+                <div class="vn">Nova</div><div class="vd">OpenAI TTS</div><span class="vt">女声·清晰</span>
+            </div>
+            <div class="vc" data-engine="openai" data-voice="alloy">
+                <div class="vn">Alloy</div><div class="vd">OpenAI TTS</div><span class="vt">中性·自然</span>
+            </div>
+            <div class="vc" data-engine="openai" data-voice="shimmer">
+                <div class="vn">Shimmer</div><div class="vd">OpenAI TTS</div><span class="vt">女声·温柔</span>
+            </div>
+            <div class="vc" data-engine="openai" data-voice="echo">
+                <div class="vn">Echo</div><div class="vd">OpenAI TTS</div><span class="vt">男声·深沉</span>
+            </div>
+            <div class="vc" data-engine="openai" data-voice="onyx">
+                <div class="vn">Onyx</div><div class="vd">OpenAI TTS</div><span class="vt">男声·磁性</span>
+            </div>
+            <div class="vc" data-engine="openai" data-voice="fable">
+                <div class="vn">Fable</div><div class="vd">OpenAI TTS</div><span class="vt">男声·英式</span>
+            </div>
+        </div>
+
+        <div class="sub-title vgrid-gap">🔥 ElevenLabs（最接近真人）</div>
+        <div class="vgrid">
+            <div class="vc" data-engine="elevenlabs" data-voice="Rachel">
+                <span class="badge">推荐</span>
+                <div class="vn">Rachel</div><div class="vd">ElevenLabs</div><span class="vt">女声·自然</span>
+            </div>
+            <div class="vc" data-engine="elevenlabs" data-voice="Bella">
+                <div class="vn">Bella</div><div class="vd">ElevenLabs</div><span class="vt">女声·柔和</span>
+            </div>
+            <div class="vc" data-engine="elevenlabs" data-voice="Antoni">
+                <div class="vn">Antoni</div><div class="vd">ElevenLabs</div><span class="vt">男声·磁性</span>
+            </div>
+            <div class="vc" data-engine="elevenlabs" data-voice="Adam">
+                <div class="vn">Adam</div><div class="vd">ElevenLabs</div><span class="vt">男声·标准</span>
             </div>
         </div>
     </div>
 
-    <!-- 语速 + 按钮 -->
     <div class="card">
         <div class="lbl" style="margin-bottom:10px;">语速</div>
         <div class="sp-row" style="margin-bottom:16px;">
@@ -206,54 +192,50 @@
         </div>
     </div>
 
-    <!-- 状态 -->
-    <div class="stat"><div class="dot" id="sdot"></div><span id="statMsg">准备就绪</span></div>
+    <div class="stat"><div class="dot" id="sdot"></div><span id="statMsg">准备就绪，选择音源后点击播放</span></div>
     <div class="prog-w" id="progW"><div class="prog-b" id="progB"></div></div>
 
     <div class="footer">
-        国内：有道词典 / 百度翻译 / 搜狗翻译 · 无需注册<br>
-        国际：谷歌TTS (需梯子) · 浏览器内置朗读 (无需联网)<br>
-        <b style="color:#3a3a58;">⚠️ 所有音源必须通过 HTTP 服务器访问，不可直接双击打开</b>
+        国际音源经 <b>Puter.js</b> 免费中转（aws-polly / openai / elevenlabs）<br>
+        国内音源：有道 / 百度 / 搜狗 · 无需登录 · 建议用 HTTP 服务器打开文件
     </div>
 </div>
 
 <script>
-// ═══════════════════════════════════
-// 检测是否 file:// 协议
-// ═══════════════════════════════════
-if (location.protocol === 'file:') {
-    document.getElementById('fileProtocolWarn').style.display = 'block';
+// ── 本地文件检测 ──
+if (window.location.protocol === 'file:') {
+    document.getElementById('localWarn').style.display = 'block';
 }
 
-// ═══════════════════════════════════
-// 音源 URL 生成
-// ═══════════════════════════════════
-function getCNUrl(voice, text) {
-    const t = encodeURIComponent(text);
-    switch(voice) {
-        case 'youdao1': return `https://dict.youdao.com/dictvoice?audio=${t}&type=1`;
-        case 'youdao2': return `https://dict.youdao.com/dictvoice?audio=${t}&type=2`;
-        case 'baidu':   return `https://tts.baidu.com/text2audio?lan=en&ie=UTF-8&spd=5&text=${t}`;
-        case 'sogou':   return `https://fanyi.sogou.com/reventondc/synthesis?text=${t}&speed=1&lang=en&from=translateweb&speaker=6`;
+// ── 国内音源 URL ──
+const CN_URLS = {
+    youdao1: t => `https://dict.youdao.com/dictvoice?audio=${encodeURIComponent(t)}&type=1`,
+    youdao2: t => `https://dict.youdao.com/dictvoice?audio=${encodeURIComponent(t)}&type=2`,
+    baidu:   t => `https://tts.baidu.com/text2audio?lan=en&ie=UTF-8&spd=5&text=${encodeURIComponent(t)}`,
+    sogou:   t => `https://fanyi.sogou.com/reventondc/synthesis?text=${encodeURIComponent(t)}&speed=1&lang=en&from=translateweb&speaker=6`,
+};
+const CN_CHUNK = { youdao1:80, youdao2:80, baidu:80, sogou:60 };
+
+// ── Puter.js 参数（官方文档正确写法）──
+function buildPuterOpts(engine, voice) {
+    if (engine === 'aws-polly') {
+        return { provider: 'aws-polly', voice, engine: 'neural', language: 'en-US' };
+    }
+    if (engine === 'openai') {
+        return { provider: 'openai', model: 'tts-1-hd', voice };
+    }
+    if (engine === 'elevenlabs') {
+        return { provider: 'elevenlabs', model: 'eleven_multilingual_v2', voice };
     }
 }
-function getGoogleUrl(lang, text) {
-    return `https://translate.google.com/translate_tts?ie=UTF-8&q=${encodeURIComponent(text)}&tl=${lang}&client=tw-ob&ttsspeed=0.9`;
-}
 
-// ═══════════════════════════════════
-// 状态
-// ═══════════════════════════════════
+// ── 状态 ──
 let curEngine = 'cn';
 let curVoice  = 'youdao1';
-let curChunk  = 80;
 let isPlaying = false;
 let curAudio  = null;
-let dlBlobs   = [];   // 谷歌TTS 可下载
+let dlBlob    = null;
 
-// ═══════════════════════════════════
-// DOM
-// ═══════════════════════════════════
 const textInput   = document.getElementById('textInput');
 const charCount   = document.getElementById('charCount');
 const speedSlider = document.getElementById('speedSlider');
@@ -267,41 +249,30 @@ const statMsg     = document.getElementById('statMsg');
 const progW       = document.getElementById('progW');
 const progB       = document.getElementById('progB');
 
-textInput.addEventListener('input', () => {
-    charCount.textContent = textInput.value.trim().length + ' 字';
-});
+textInput.addEventListener('input', () => { charCount.textContent = textInput.value.trim().length + ' 字'; });
 speedSlider.addEventListener('input', () => {
-    const v = parseFloat(speedSlider.value);
-    speedValEl.textContent = v.toFixed(2).replace(/\.?0+$/, '') + 'x';
+    speedValEl.textContent = parseFloat(speedSlider.value).toFixed(2).replace(/\.?0+$/, '') + 'x';
 });
 
-// ═══════════════════════════════════
-// 音色选择
-// ═══════════════════════════════════
+// ── 音色点击 ──
 document.querySelectorAll('.vc').forEach(el => {
     el.addEventListener('click', () => {
-        document.querySelectorAll('.vc').forEach(v => v.classList.remove('sel'));
-        el.classList.add('sel');
+        document.querySelectorAll('.vc').forEach(v => v.classList.remove('sel', 'sel-cn'));
+        el.classList.add(el.dataset.engine === 'cn' ? 'sel-cn' : 'sel');
         curEngine = el.dataset.engine;
         curVoice  = el.dataset.voice;
-        curChunk  = parseInt(el.dataset.chunk) || 80;
-        dlBlobs   = []; dlBtn.disabled = true;
-        // 谷歌TTS 和 浏览器 显示下载按钮区域
-        dlBtn.style.display = (curEngine === 'google') ? '' : 'none';
+        dlBlob = null; dlBtn.disabled = true;
+        dlBtn.style.display = curEngine === 'cn' ? 'none' : '';
         setStat('', `已选: ${el.querySelector('.vn').textContent}`);
     });
 });
 
-// ═══════════════════════════════════
-// 工具
-// ═══════════════════════════════════
 function setStat(type, msg) {
     sdot.className = 'dot' + (type ? ' ' + type : '');
     statMsg.textContent = msg || '';
 }
 
 function splitText(text, maxLen) {
-    if (maxLen >= 9999) return [text]; // 浏览器TTS 不分段
     const parts = text.match(/[^.!?,;\n]+[.!?,;\n]*/g) || [text];
     const out = []; let cur = '';
     for (let s of parts) {
@@ -311,9 +282,8 @@ function splitText(text, maxLen) {
             if (s.length > maxLen) {
                 const words = s.split(' '); let sub = '';
                 for (const w of words) {
-                    if ((sub + ' ' + w).trim().length > maxLen) {
-                        if (sub) out.push(sub.trim()); sub = w;
-                    } else sub = (sub + ' ' + w).trim();
+                    if ((sub + ' ' + w).trim().length > maxLen) { if (sub) out.push(sub.trim()); sub = w; }
+                    else sub = (sub + ' ' + w).trim();
                 }
                 cur = sub;
             } else cur = s;
@@ -323,31 +293,25 @@ function splitText(text, maxLen) {
     return out.filter(Boolean);
 }
 
-// ═══════════════════════════════════
-// 播放主逻辑
-// ═══════════════════════════════════
+// ── 播放入口 ──
 playBtn.addEventListener('click', async () => {
     if (isPlaying) { stopAll(); return; }
     const text = textInput.value.trim();
     if (!text) { setStat('err', '⚠️ 请先输入文字'); return; }
 
-    isPlaying = true; dlBlobs = []; dlBtn.disabled = true;
+    isPlaying = true; dlBlob = null; dlBtn.disabled = true;
     playBtn.classList.add('going');
     playBtnText.textContent = '■ 停止';
     waveAnim.classList.add('on');
     progW.style.display = 'block'; progB.style.width = '0%';
 
     try {
-        if (curEngine === 'browser') {
-            await playBrowser(text);
-        } else if (curEngine === 'cn') {
-            await playAudioChunks(text, i => getCNUrl(curVoice, i));
-        } else if (curEngine === 'google') {
-            await playAudioChunks(text, i => getGoogleUrl(curVoice, i), true);
-        }
+        if (curEngine === 'cn') await playCN(text);
+        else await playPuter(text);
     } catch(e) {
         console.error(e);
-        setStat('err', '❌ ' + (e.message || String(e)));
+        const m = e?.message || String(e);
+        setStat('err', '❌ ' + m + (m.includes('fetch') || m.includes('Failed') ? '（请确认 VPN 已开启）' : ''));
     } finally {
         stopAll(false);
     }
@@ -355,7 +319,6 @@ playBtn.addEventListener('click', async () => {
 
 function stopAll(showStop = true) {
     isPlaying = false;
-    window.speechSynthesis && window.speechSynthesis.cancel();
     if (curAudio) { try { curAudio.pause(); curAudio.src = ''; } catch(e){} curAudio = null; }
     playBtn.classList.remove('going');
     playBtnText.textContent = '▶ 播放';
@@ -363,111 +326,83 @@ function stopAll(showStop = true) {
     if (showStop) { setStat('', '已停止'); progW.style.display = 'none'; }
 }
 
-// ── 通用 Audio 分段播放（支持可选 blob 收集用于下载）──
-async function playAudioChunks(text, urlFn, collectBlob = false) {
-    const chunks = splitText(text, curChunk);
+// ── Puter.js 播放（官方正确 API 参数）──
+async function playPuter(text) {
+    const chunks = splitText(text, 2800);
+    const speed  = parseFloat(speedSlider.value);
+    const opts   = buildPuterOpts(curEngine, curVoice);
+
+    for (let i = 0; i < chunks.length; i++) {
+        if (!isPlaying) break;
+        setStat('load', `⏳ 生成中 (${i+1}/${chunks.length})…`);
+        progB.style.width = `${Math.round(i / chunks.length * 100)}%`;
+
+        // 官方 API：puter.ai.txt2speech(text, options) → HTMLAudioElement
+        const audio = await puter.ai.txt2speech(chunks[i], opts);
+        if (!isPlaying) break;
+
+        // 抓取 blob 用于下载（audio.src 是 blob:// URL）
+        if (i === 0 && audio.src) {
+            try {
+                const r = await fetch(audio.src);
+                if (r.ok) { dlBlob = await r.blob(); dlBtn.disabled = false; dlBtn.style.display = ''; }
+            } catch(_) {}
+        }
+
+        audio.playbackRate = speed;
+        curAudio = audio;
+        setStat('load', `🔊 播放中 (${i+1}/${chunks.length})`);
+
+        await new Promise((res, rej) => {
+            audio.onended = res;
+            audio.onerror = () => rej(new Error('播放出错'));
+            audio.play().catch(rej);
+        });
+        progB.style.width = `${Math.round((i+1)/chunks.length*100)}%`;
+    }
+    if (isPlaying) setStat('done', `✅ 播放完毕${dlBlob ? ' · 点 ⬇ MP3 下载' : ''}`);
+}
+
+// ── 国内音源播放 ──
+async function playCN(text) {
+    const urlFn  = CN_URLS[curVoice];
+    const chunks = splitText(text, CN_CHUNK[curVoice] || 80);
     const speed  = parseFloat(speedSlider.value);
 
     for (let i = 0; i < chunks.length; i++) {
         if (!isPlaying) break;
-        setStat('load', `🔊 (${i+1}/${chunks.length}): "${chunks[i].slice(0,22)}…"`);
+        setStat('load', `🔊 (${i+1}/${chunks.length}): "${chunks[i].slice(0,20)}…"`);
         progB.style.width = `${Math.round(i / chunks.length * 100)}%`;
 
-        const url = urlFn(chunks[i]);
-
-        // 谷歌TTS：先 fetch 拿到 blob（顺便可下载）
-        if (collectBlob) {
-            try {
-                const resp = await fetch(url);
-                if (!resp.ok) throw new Error('HTTP ' + resp.status);
-                const blob = await resp.blob();
-                dlBlobs.push(blob);
-                const objUrl = URL.createObjectURL(blob);
-                await playUrl(objUrl, speed);
-                // 不立即 revoke，留给下载用
-            } catch(e) {
-                throw new Error('谷歌TTS 加载失败（请确认已开梯子）: ' + e.message);
-            }
-        } else {
-            await playUrl(url, speed);
-        }
-
-        progB.style.width = `${Math.round((i+1)/chunks.length*100)}%`;
+        await new Promise((res, rej) => {
+            const audio = new Audio();
+            curAudio = audio;
+            audio.crossOrigin = 'anonymous';
+            audio.playbackRate = speed;
+            audio.oncanplaythrough = () => {
+                audio.play()
+                    .then(() => { audio.onended = () => { progB.style.width = `${Math.round((i+1)/chunks.length*100)}%`; res(); }; })
+                    .catch(rej);
+            };
+            audio.onerror = () => rej(new Error(
+                '音频加载失败' + (window.location.protocol === 'file:' ? ' — 如用本地文件请改用 HTTP 服务器打开' : '')
+            ));
+            audio.src = urlFn(chunks[i]);
+            audio.load();
+        });
     }
-
-    if (isPlaying) {
-        if (collectBlob && dlBlobs.length > 0) {
-            dlBtn.disabled = false;
-            setStat('done', `✅ 播放完毕 · 可点击 ⬇ MP3 下载`);
-        } else {
-            setStat('done', `✅ 播放完毕`);
-        }
-    }
+    if (isPlaying) setStat('done', '✅ 播放完毕（国内音源不支持下载）');
 }
 
-function playUrl(url, speed) {
-    return new Promise((res, rej) => {
-        const audio = new Audio(url);
-        curAudio = audio;
-        audio.playbackRate = speed;
-        // 不设 crossOrigin，避免 CORS 报错
-        audio.onended  = res;
-        audio.onerror  = () => rej(new Error('音频加载失败 — 如用本地文件请改用 HTTP 服务器打开'));
-        audio.play().catch(e => rej(new Error('播放被阻止: ' + e.message)));
-    });
-}
-
-// ── 浏览器内置 TTS（Web Speech API，无需联网）──
-async function playBrowser(text) {
-    return new Promise((res, rej) => {
-        if (!window.speechSynthesis) { rej(new Error('此浏览器不支持语音合成')); return; }
-        window.speechSynthesis.cancel();
-        const utter = new SpeechSynthesisUtterance(text);
-        utter.lang  = 'en-US';
-        utter.rate  = parseFloat(speedSlider.value);
-        utter.onend = () => { setStat('done', '✅ 播放完毕'); res(); };
-        utter.onerror = e => rej(new Error('浏览器TTS错误: ' + e.error));
-        // 等 voices 加载好
-        const speak = () => {
-            const voices = window.speechSynthesis.getVoices();
-            const best = voices.find(v => v.lang === 'en-US' && v.name.includes('Samantha'))
-                      || voices.find(v => v.lang === 'en-US')
-                      || voices.find(v => v.lang.startsWith('en'));
-            if (best) utter.voice = best;
-            setStat('load', `🔊 浏览器朗读中…`);
-            window.speechSynthesis.speak(utter);
-        };
-        if (window.speechSynthesis.getVoices().length > 0) { speak(); }
-        else {
-            window.speechSynthesis.onvoiceschanged = () => { window.speechSynthesis.onvoiceschanged = null; speak(); };
-            setTimeout(speak, 1000); // 保险超时
-        }
-    });
-}
-
-// ═══════════════════════════════════
-// 下载 MP3（谷歌TTS blobs 合并）
-// ═══════════════════════════════════
-dlBtn.addEventListener('click', async () => {
-    if (!dlBlobs.length) return;
-    setStat('load', '⏳ 合并音频中…');
-    try {
-        const arrays = await Promise.all(dlBlobs.map(b => b.arrayBuffer()));
-        const total  = arrays.reduce((s, a) => s + a.byteLength, 0);
-        const merged = new Uint8Array(total);
-        let offset = 0;
-        for (const a of arrays) { merged.set(new Uint8Array(a), offset); offset += a.byteLength; }
-        const blob = new Blob([merged], { type: 'audio/mpeg' });
-        const url  = URL.createObjectURL(blob);
-        const a    = document.createElement('a');
-        a.href     = url;
-        a.download = `tts_google_${curVoice}_${Date.now()}.mp3`;
-        document.body.appendChild(a); a.click(); document.body.removeChild(a);
-        setTimeout(() => URL.revokeObjectURL(url), 5000);
-        setStat('done', '✅ 已开始下载 MP3');
-    } catch(e) {
-        setStat('err', '❌ 下载失败: ' + e.message);
-    }
+// ── 下载 MP3 ──
+dlBtn.addEventListener('click', () => {
+    if (!dlBlob) return;
+    const url = URL.createObjectURL(dlBlob);
+    const a = document.createElement('a');
+    a.href = url; a.download = `tts_${curVoice}_${Date.now()}.mp3`;
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    setTimeout(() => URL.revokeObjectURL(url), 5000);
+    setStat('done', '✅ 已开始下载');
 });
 </script>
 </body>
